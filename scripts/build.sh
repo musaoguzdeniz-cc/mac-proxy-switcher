@@ -16,7 +16,7 @@ for architecture in arm64 x86_64; do
 done
 
 xcrun lipo -create build/MacProxySwitcher-arm64 build/MacProxySwitcher-x86_64 -output "$executable"
-xcrun lipo -verify_arch arm64 x86_64 "$executable"
+xcrun lipo "$executable" -verify_arch arm64 x86_64
 codesign --force --sign - "$app"
 codesign --verify --strict --verbose=2 "$app"
 
