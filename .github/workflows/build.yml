@@ -1,0 +1,34 @@
+name: Build macOS app
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Test proxy validation and rollback
+        run: |
+          mkdir -p build
+          xcrun swiftc -swift-version 5 Sources/ProxySettings.swift Tests/ProxySettingsTests.swift -o build/proxy-settings-tests
+          build/proxy-settings-tests
+      - name: Build and sign Universal app
+        run: bash scripts/build.sh
+      - uses: actions/upload-artifact@v7
+        with:
+          name: mac-proxy-switcher-universal
+          path: |
+            build/Mac-Proxy-Switcher-macOS-universal.zip
+            build/SHA256SUMS.txt
+          if-no-files-found: error
+          compression-level: 0
